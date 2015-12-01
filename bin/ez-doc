@@ -1,0 +1,86 @@
+#! /usr/bin/env node
+
+var path = require('path')
+
+var src = process.cwd()
+  , dir = '_book'
+  , out = path.join(src, dir)
+  , cmd = process.argv[2] || '--help'
+  , srv = cmd === 'serve'
+
+if (cmd === '-h' || cmd === '--help') {
+  console.log(
+    [ 'Usage: ez-doc <command>'
+    , ''
+    , 'Commands:'
+    , ''
+    , '  build    builds docs in current directory'
+    , '  serve    serves docs from current directory'
+    , ''
+    , 'Options:'
+    , ''
+    , '  -h, --help   outputs usage information'
+    ].join('\n')
+  )
+
+  process.exit(0)
+}
+if (cmd in { 'build': true, 'serve': true } === false) {
+  console.error('unknown command:', cmd)
+  process.exit(1)
+}
+
+generate(src, out, !!srv).then(function() {
+  if (!srv) return
+
+  var watch  = require('chokidar').watch
+    , reload = require('tiny-lr')({})
+    , server = require('http-server').createServer(
+        { root: out
+        , cache: -1 
+        }
+      )
+
+  server.listen(4000, function() {
+    console.log('Serving', path.basename(src), 'docs at localhost:4000...')
+
+    reload.listen(35729, function() {
+      var files = watch(path.join(src, '**/*'),
+        { ignored: 
+          [ path.join(src, dir, '**')
+          , path.join(src, 'node_modules')
+          ]
+        }
+      )
+
+      var isGenerating = false
+
+      files.on('change', function(path) {
+        if (isGenerating) return
+
+        console.log('changed:', path)
+
+        isGenerating = true
+        generate(src, out, !!srv).then(function() {
+          isGenerating = false
+          reload.changed({ body: { files: [path] } })
+        })
+      })
+    })
+  })
+})
+
+function generate(src, out, reload) {
+  var book = new (require('gitbook').Book)(src,
+    { config:
+      { output: out
+      , defaultsPlugins: ['zambezi-docs'].concat(reload? ['livereload'] : [])
+      }
+      , logLevel: process.env.DEBUG? 'info' : 'error'
+    }
+  )
+
+  return book.parse()
+    .then(book.generate.bind(book, 'website'))
+    .catch(console.error.bind(console))
+}
