@@ -1,7 +1,7 @@
 Building documentation
 ======================
 
-It's easy to get started with ez-doc. All you need are two files in your project to get started:
+It's easy to get started with ez-doc. All you need are two files in your project:
 
 - README.md
 - SUMMARY.md
