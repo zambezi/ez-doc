@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "gitbook": "2.6.2",
-    "gitbook-plugin-zambezi-docs": "@zambezi/gitbook-plugin-zambezi-docs",
+    "gitbook-plugin-zambezi-docs": "^1.0.0-prepare-for-open-source.0",
     "chokidar": "1.3.0",
     "tiny-lr": "0.2.1",
     "http-server": "0.8.5"
