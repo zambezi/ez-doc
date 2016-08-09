@@ -1,6 +1,6 @@
 {
   "name": "@zambezi/ez-doc",
-  "version": "0.1.0",
+  "version": "1.0.0-prepare-for-open-source.0",
   "description": "Zambezi style documentation site generator",
   "bin": {
     "ez-doc": "bin/ez-doc"
